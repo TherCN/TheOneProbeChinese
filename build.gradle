@@ -23,7 +23,7 @@ apply plugin: 'maven-publish'
 repositories {
     maven { // The repo from which to get waila
         name "Mobius Repo"
-        url "https://tehnut.info/maven"
+        url "https://maven.blamejared.com"
     }
     maven { // JEI
         url "http://dvs1.progwml6.com/files/maven"
@@ -32,7 +32,7 @@ repositories {
         url "http://maven.k-4u.nl"
     }
     maven { //Tesla
-        url "http://maven.epoxide.xyz"
+        url "http://maven.blamejared.com"
     }
     maven {
         name = "sonatype"

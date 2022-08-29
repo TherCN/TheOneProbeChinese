@@ -1,0 +1,26 @@
+name: Build Minecraft Mod
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build_linux:
+    strategy:
+      matrix:
+        prefix: [ "main" ]
+      fail-fast: false
+
+    name: "Build MC Mod"
+    runs-on: ubuntu-20.04
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Build with build script
+      run: bash "build_mc_mod.sh"
+    - name: Upload build output
+      uses: actions/upload-artifact@v2
+      with:
+        name: "mc-mod"
+        path: theoneprobe*.jar
