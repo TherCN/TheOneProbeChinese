@@ -1,18 +1,14 @@
 package mcjty.theoneprobe.config;
 
-import mcjty.theoneprobe.gui.GuiConfig;
+import mcjty.theoneprobe.TheOneProbe;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.common.config.ConfigElement;
+import net.minecraftforge.fml.client.config.GuiConfig;
 
 public class TopModConfigGui extends GuiConfig {
 
-//    public TopModConfigGui(DummyConfigContainer screenContainer, PlayerInventory inv) {
-//        super(screenContainer, inv);
-//    }
-
-    public TopModConfigGui() {
+    public TopModConfigGui(GuiScreen parentScreen) {
+        super(parentScreen, new ConfigElement(ConfigSetup.mainConfig.getCategory(ConfigSetup.CATEGORY_CLIENT)).getChildElements(),
+                TheOneProbe.MODID, false, false, "The One Probe配置");
     }
-
-
-    // 1.13
-//        super(parentScreen, new ConfigElement(TheOneProbe.config.getCategory(Config.CATEGORY_CLIENT)).getChildElements(),
-//                TheOneProbe.MODID, false, false, "The One Probe Config");
 }

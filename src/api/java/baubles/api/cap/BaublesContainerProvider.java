@@ -1,12 +1,12 @@
 package baubles.api.cap;
 
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.INBTSerializable;
 
-public class BaublesContainerProvider implements INBTSerializable<CompoundNBT>, ICapabilityProvider {
+public class BaublesContainerProvider implements INBTSerializable<NBTTagCompound>, ICapabilityProvider {
 
 	private final BaublesContainer container;
 
@@ -15,24 +15,24 @@ public class BaublesContainerProvider implements INBTSerializable<CompoundNBT>, 
 	}
 
 	@Override
-	public boolean hasCapability (Capability<?> capability, Direction facing) {
+	public boolean hasCapability (Capability<?> capability, EnumFacing facing) {
 		return capability == BaublesCapabilities.CAPABILITY_BAUBLES;
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T getCapability (Capability<T> capability, Direction facing) {
+	public <T> T getCapability (Capability<T> capability, EnumFacing facing) {
 		if (capability == BaublesCapabilities.CAPABILITY_BAUBLES) return (T) this.container;
 		return null;
 	}
 
 	@Override
-	public CompoundNBT serializeNBT () {
+	public NBTTagCompound serializeNBT () {
 		return this.container.serializeNBT();
 	}
 
 	@Override
-	public void deserializeNBT (CompoundNBT nbt) {
+	public void deserializeNBT (NBTTagCompound nbt) {
 		this.container.deserializeNBT(nbt);
 	}
 }

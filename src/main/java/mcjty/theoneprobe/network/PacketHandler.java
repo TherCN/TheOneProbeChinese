@@ -1,13 +1,12 @@
 package mcjty.theoneprobe.network;
 
 
-import mcjty.theoneprobe.TheOneProbe;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import net.minecraftforge.fml.relauncher.Side;
 
 public class PacketHandler {
-    public static SimpleChannel INSTANCE;
+    public static SimpleNetworkWrapper INSTANCE;
     private static int ID = 0;
 
     public static int nextID() {
@@ -15,30 +14,14 @@ public class PacketHandler {
     }
 
     public static void registerMessages(String channelName) {
-        INSTANCE = NetworkRegistry.newSimpleChannel(new ResourceLocation(TheOneProbe.MODID, channelName), () -> "1.0", s -> true, s -> true);
+        INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel(channelName);
 
         // Server side
-        INSTANCE.registerMessage(nextID(), PacketGetInfo.class,
-                PacketGetInfo::toBytes,
-                PacketGetInfo::new,
-                PacketGetInfo::handle);
-        INSTANCE.registerMessage(nextID(), PacketGetEntityInfo.class,
-                PacketGetEntityInfo::toBytes,
-                PacketGetEntityInfo::new,
-                PacketGetEntityInfo::handle);
+        INSTANCE.registerMessage(PacketGetInfo.Handler.class, PacketGetInfo.class, nextID(), Side.SERVER);
+        INSTANCE.registerMessage(PacketGetEntityInfo.Handler.class, PacketGetEntityInfo.class, nextID(), Side.SERVER);
 
         // Client side
-        INSTANCE.registerMessage(nextID(), PacketReturnInfo.class,
-                PacketReturnInfo::toBytes,
-                PacketReturnInfo::new,
-                PacketReturnInfo::handle);
-        INSTANCE.registerMessage(nextID(), PacketReturnEntityInfo.class,
-                PacketReturnEntityInfo::toBytes,
-                PacketReturnEntityInfo::new,
-                PacketReturnEntityInfo::handle);
-        INSTANCE.registerMessage(nextID(), PacketOpenGui.class,
-                PacketOpenGui::toBytes,
-                PacketOpenGui::new,
-                PacketOpenGui::handle);
+        INSTANCE.registerMessage(PacketReturnInfo.Handler.class, PacketReturnInfo.class, nextID(), Side.CLIENT);
+        INSTANCE.registerMessage(PacketReturnEntityInfo.Handler.class, PacketReturnEntityInfo.class, nextID(), Side.CLIENT);
     }
 }

@@ -1,20 +1,22 @@
 package mcjty.theoneprobe.apiimpl.providers;
 
 import mcjty.theoneprobe.TheOneProbe;
-import mcjty.theoneprobe.api.CompoundText;
-import mcjty.theoneprobe.api.*;
-import mcjty.theoneprobe.config.Config;
+import mcjty.theoneprobe.api.ElementAlignment;
+import mcjty.theoneprobe.api.IIconStyle;
+import mcjty.theoneprobe.api.ILayoutStyle;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.config.ConfigSetup;
 import mcjty.theoneprobe.items.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.ToolItem;
+import net.minecraft.item.ItemTool;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ToolType;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,22 +27,22 @@ public class HarvestInfoTools {
 
     private static final ResourceLocation ICONS = new ResourceLocation(TheOneProbe.MODID, "textures/gui/icons.png");
     private static String[] harvestLevels = new String[]{
-            "stone",
-            "iron",
-            "diamond",
-            "obsidian",
-            "cobalt"
+            "石",
+            "铁",
+            "钻石",
+            "黑曜石",
+            "钴"
     };
 
-    private static final Map<ToolType, ItemStack> TEST_TOOLS = new HashMap<>();
+    private static final HashMap<String, ItemStack> testTools = new HashMap<>();
     static {
-        TEST_TOOLS.put(ToolType.SHOVEL, new ItemStack(Items.WOODEN_SHOVEL));
-        TEST_TOOLS.put(ToolType.AXE, new ItemStack(Items.WOODEN_AXE));
-        TEST_TOOLS.put(ToolType.PICKAXE, new ItemStack(Items.WOODEN_PICKAXE));
+        testTools.put("铲", new ItemStack(Items.WOODEN_SHOVEL));
+        testTools.put("斧", new ItemStack(Items.WOODEN_AXE));
+        testTools.put("镐", new ItemStack(Items.WOODEN_PICKAXE));
     }
 
-    static void showHarvestLevel(IProbeInfo probeInfo, BlockState blockState, Block block) {
-        ToolType harvestTool = block.getHarvestTool(blockState);
+    static void showHarvestLevel(IProbeInfo probeInfo, IBlockState blockState, Block block) {
+        String harvestTool = block.getHarvestTool(blockState);
         if (harvestTool != null) {
             int harvestLevel = block.getHarvestLevel(blockState);
             String harvestName;
@@ -51,43 +53,44 @@ public class HarvestInfoTools {
             } else {
                 harvestName = harvestLevels[harvestLevel];
             }
-            probeInfo.text(CompoundText.createLabelInfo("Tool: ",harvestTool + " (level " + harvestName + ")"));
-        }
+            probeInfo.text(LABEL + "工具: " + INFO + harvestTool + " (挖掘等级: " + harvestName + ")");
+       }
     }
 
-    static void showCanBeHarvested(IProbeInfo probeInfo, World world, BlockPos pos, Block block, PlayerEntity player) {
-        if (ModItems.isProbeInHand(player.getMainHandItem())) {
+
+    static void showCanBeHarvested(IProbeInfo probeInfo, World world, BlockPos pos, Block block, EntityPlayer player) {
+        if (ModItems.isProbeInHand(player.getHeldItemMainhand())) {
             // If the player holds the probe there is no need to show harvestability information as the
             // probe cannot harvest anything. This is only supposed to work in off hand.
             return;
         }
 
-        boolean harvestable = block.canHarvestBlock(world.getBlockState(pos), world, pos, player) && world.getBlockState(pos).getDestroySpeed(world, pos) >= 0;
+        boolean harvestable = block.canHarvestBlock(world, pos, player) && world.getBlockState(pos).getBlockHardness(world, pos) >= 0;
         if (harvestable) {
-            probeInfo.text(CompoundText.create().style(OK).text("Harvestable"));
+            probeInfo.text(OK + "可收获");
         } else {
-            probeInfo.text(CompoundText.create().style(WARNING).text("Not harvestable"));
+            probeInfo.text(WARNING + "不可收获");
         }
     }
 
-    static void showHarvestInfo(IProbeInfo probeInfo, World world, BlockPos pos, Block block, BlockState blockState, PlayerEntity player) {
-        boolean harvestable = block.canHarvestBlock(world.getBlockState(pos), world, pos, player) && world.getBlockState(pos).getDestroySpeed(world, pos) >= 0;
+    static void showHarvestInfo(IProbeInfo probeInfo, World world, BlockPos pos, Block block, IBlockState blockState, EntityPlayer player) {
+        boolean harvestable = block.canHarvestBlock(world, pos, player) && world.getBlockState(pos).getBlockHardness(world, pos) >= 0;
 
-        ToolType harvestTool = block.getHarvestTool(blockState);
+        String harvestTool = block.getHarvestTool(blockState);
         String harvestName = null;
 
         if (harvestTool == null) {
             // The block doesn't have an explicitly-set harvest tool, so we're going to test our wooden tools against the block.
-            float blockHardness = blockState.getDestroySpeed(world, pos);
+            float blockHardness = blockState.getBlockHardness(world, pos);
             if (blockHardness > 0f) {
-                for (Map.Entry<ToolType, ItemStack> testToolEntry : TEST_TOOLS.entrySet()) {
+                for (Map.Entry<String, ItemStack> testToolEntry : testTools.entrySet()) {
                     // loop through our test tools until we find a winner.
                     ItemStack testTool = testToolEntry.getValue();
 
-                    if (testTool != null && testTool.getItem() instanceof ToolItem) {
-                        ToolItem toolItem = (ToolItem) testTool.getItem();
-                        // @todo 1.13
-                        if (testTool.getDestroySpeed(blockState) >= toolItem.getTier().getSpeed()) {
+                    if (testTool != null && testTool.getItem() instanceof ItemTool) {
+                        ItemTool toolItem = (ItemTool) testTool.getItem();
+                        // @todo
+                        if (testTool.getDestroySpeed(blockState) >= toolItem.toolMaterial.getEfficiency()) {
                             // BINGO!
                             harvestTool = testToolEntry.getKey();
                             break;
@@ -107,25 +110,36 @@ public class HarvestInfoTools {
             } else {
                 harvestName = harvestLevels[harvestLevel];
             }
+            harvestTool = StringUtils.capitalize(harvestTool);
         }
 
-        boolean v = Config.harvestStyleVanilla.get();
+        boolean v = ConfigSetup.harvestStyleVanilla;
         int offs = v ? 16 : 0;
         int dim = v ? 13 : 16;
 
         ILayoutStyle alignment = probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER);
         IIconStyle iconStyle = probeInfo.defaultIconStyle().width(v ? 18 : 20).height(v ? 14 : 16).textureWidth(32).textureHeight(32);
         IProbeInfo horizontal = probeInfo.horizontal(alignment);
+        String destoryTool;
+        if (harvestTool.equals("Pickaxe")) {
+        destoryTool = "镐";
+        } else if (harvestTool.equals("Shovel")) {
+        destoryTool = "铲";
+        } else if (harvestTool.equals("Axe")) {
+        destoryTool = "斧";
+        } else {
+        destoryTool = harvestTool;
+        }
         if (harvestable) {
             horizontal.icon(ICONS, 0, offs, dim, dim, iconStyle)
-                    .text(CompoundText.create().style(OK).text(((harvestTool != null) ? harvestTool.getName() : "No tool")));
+                    .text(OK + destoryTool);
         } else {
             if (harvestName == null || harvestName.isEmpty()) {
                 horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle)
-                        .text(CompoundText.create().style(WARNING).text(((harvestTool != null) ? harvestTool.getName() : "No tool")));
+                        .text(WARNING + ((harvestTool != null) ? harvestTool : "无法破坏"));
             } else {
                 horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle)
-                        .text(CompoundText.create().style(WARNING).text(((harvestTool != null) ? harvestTool.getName() : "No tool") + " (level " + harvestName + ")"));
+                        .text(WARNING + destoryTool + "(挖掘等级 " + harvestName + ")");
             }
         }
     }

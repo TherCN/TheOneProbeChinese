@@ -2,34 +2,56 @@
 // For those who want the bleeding edge
 buildscript {
     repositories {
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        maven { url 'https://plugins.gradle.org/m2/' }
         jcenter()
-        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
-        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle'
-apply plugin: 'eclipse'
-apply plugin: 'com.matthewprenger.cursegradle'
+plugins {
+    id 'com.matthewprenger.cursegradle' version '1.1.0'
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'maven-publish'
 
 repositories {
-    maven { // JEI
-        url "https://dvs1.progwml6.com/files/maven"
+    maven { // The repo from which to get waila
+        name "Mobius Repo"
+        url "https://tehnut.info/maven"
     }
-    maven { // Patchouli
-        url "https://maven.blamejared.com"
+    maven { // JEI
+        url "http://dvs1.progwml6.com/files/maven"
     }
     maven { // CompatLayer
         url "http://maven.k-4u.nl"
     }
+    maven { //Tesla
+        url "http://maven.epoxide.xyz"
+    }
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
+    maven {
+        name = "CoFH Maven"
+        url = "http://maven.covers1624.net"
+    }
+    maven {
+        name = "TESLA"
+        url = "https://maven.mcmoddev.com"
+    }
 }
 
+def ENV = System.getenv()
+if (ENV.DRONE_BUILD_NUMBER) {
+    version += ".n" + ENV.DRONE_BUILD_NUMBER
+}
 group= "mcjty.theoneprobe" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "theoneprobe"
 
@@ -42,80 +64,44 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 minecraft {
-    mappings channel: 'official', version: "1.16.5"
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    version = "${minecraft_version}-${forge_version}"
+    runDir = "run"
+    mappings = mcp_mappings
+    useDepAts = true
 
-    //runDir = "run"
-    runs {
-        client = {
-            // recommended logging data for a userdev environment
-            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
-            // recommended logging level for the console
-            properties 'forge.logging.console.level': 'debug'
-            workingDirectory project.file('run').canonicalPath
-            source sourceSets.main
-        }
-        server = {
-            // recommended logging data for a userdev environment
-            properties 'forge.logging.markers': 'SCAN,REGISTRIES,REGISTRYDUMP'
-            // recommended logging level for the console
-            properties 'forge.logging.console.level': 'debug'
-            workingDirectory project.file('run').canonicalPath
-            source sourceSets.main
-        }
-        data = {
-            workingDirectory project.file('run').canonicalPath
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-            property 'forge.logging.console.level', 'debug'
-            args '--mod', 'theoneprobe', '--all', '--output', file('src/generated/resources/'), '--existing', sourceSets.main.resources.srcDirs[0]
-            source sourceSets.main
-        }
-    }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
-    // compile against the JEI API but do not include it at runtime
-    compileOnly fg.deobf("mezz.jei:jei-${jei_version}:api")
-    // at runtime, use the full JEI jar
-    runtimeOnly fg.deobf("mezz.jei:jei-${jei_version}")
-    //deobfCompile "cofh:RedstoneFlux:${redstoneflux_version}"
-    //deobfCompile "net.darkhax.tesla:Tesla-1.12.2:1.0.63"
+    deobfCompile "mezz.jei:jei_${jei_version}"
+    deobfCompile "cofh:RedstoneFlux:${redstoneflux_version}"
+    deobfCompile "net.darkhax.tesla:Tesla-1.12.2:1.0.63"
 }
 
 jar {
     manifest {
-        attributes 'FMLAT': 'accesstransformer.cfg',
-        "Specification-Title": "theoneprobe",
-        "Specification-Vendor": "McJty",
-        "Specification-Version": "1",
-        "Implementation-Title": project.name,
-        "Implementation-Version": "${version}",
-        "Implementation-Vendor" :"McJty",
-        "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        attributes 'FMLAT': 'top_at.cfg'
     }
 }
 
-//processResources
-//{
-//    // this will ensure that this task is redone when the versions change.
-//    inputs.property "version", project.version
-//    inputs.property "mcversion", project.minecraft.version
-//
-//    // replace stuff in mcmod.info, nothing else
-//    from(sourceSets.main.resources.srcDirs) {
-//        include 'mcmod.info'
-//                
-//        // replace version and mcversion
-//        expand 'version':project.version, 'mcversion':project.minecraft.version
-//    }
-//        
-//    // copy everything else, thats not the mcmod.info
-//    from(sourceSets.main.resources.srcDirs) {
-//        exclude 'mcmod.info'
-//    }
-//}
+processResources
+{
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else, thats not the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
 
 task apiJar(type: Jar) {
     classifier = "api"
@@ -129,44 +115,20 @@ artifacts {
 }
 
 publishing {
-    publications.create('mavenJava', MavenPublication) {
-        from components.java
-        artifact apiJar
-
-        artifactId = project.archivesBaseName
-        pom {
-            name = 'TheOneProbe'
-            description = 'What is this block?'
-            scm {
-                url = 'https://github.com/McJtyMods/TheOneProbe'
-                connection = 'scm:git:git@github.com:McJtyMods/TheOneProbe.git'
-                developerConnection = 'scm:git:git@github.com:McJtyMods/TheOneProbe.git'
-            }
-            issueManagement {
-                system = 'github'
-                url = 'https://github.com/McJtyMods/TheOneProbe/issues'
-            }
-            licenses {
-                license {
-                    name = 'MIT'
-                    distribution = 'repo'
-                }
-            }
-            developers {
-                developer {
-                    id = 'McJty'
-                    name = 'McJty'
-                    roles = ['developer']
-                }
-            }
+    tasks.publish.dependsOn 'build'
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact apiJar
+            artifact sourceJar
         }
     }
+
     repositories {
-        if (System.getenv('local_maven') != null) {
-            maven {
-                name = 'local'
-                url = 'file://' + System.getenv('local_maven')
-            }
+        if (project.hasProperty('mavendir')) {
+            maven { url mavendir }
+        } else {
+            mavenLocal()
         }
     }
 }
@@ -214,7 +176,7 @@ curseforge {
         changelog = System.getenv('CHANGELOG') == null || System.getenv('CHANGELOG').equals('none') ? getChangelogText() : System.getenv('CHANGELOG')
         changelogType = 'html'
         releaseType = project.curse_type
-        addGameVersion project.minecraft_version
+        addGameVersion '1.12.2'
         mainArtifact(jar) {
             displayName = "${modname} - ${version}"
         }
@@ -225,4 +187,3 @@ curseforge {
         }
     }
 }
-

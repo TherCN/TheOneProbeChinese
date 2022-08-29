@@ -1,7 +1,6 @@
 package mcjty.theoneprobe.playerdata;
 
-
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class PlayerGotNote {
 
@@ -23,11 +22,11 @@ public class PlayerGotNote {
     }
 
 
-    public void saveNBTData(CompoundNBT compound) {
-        compound.putBoolean("gotNote", playerGotNote);
+    public void saveNBTData(NBTTagCompound compound) {
+        compound.setBoolean("gotNote", playerGotNote);
     }
 
-    public void loadNBTData(CompoundNBT compound) {
+    public void loadNBTData(NBTTagCompound compound) {
         playerGotNote = compound.getBoolean("gotNote");
     }
 }

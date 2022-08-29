@@ -1,7 +1,7 @@
 package mcjty.theoneprobe.network;
 
+import mcjty.theoneprobe.config.ConfigSetup;
 import mcjty.theoneprobe.TheOneProbe;
-import mcjty.theoneprobe.config.Config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -16,13 +16,13 @@ public class ThrowableIdentity {
         long curtime = System.currentTimeMillis();
         if (catchedThrowables.containsKey(identity)) {
             long lasttime = catchedThrowables.get(identity);
-            if (curtime < lasttime + Config.loggingThrowableTimeout.get()) {
+            if (curtime < lasttime + ConfigSetup.loggingThrowableTimeout) {
                 // If this exception occured less then some time ago we don't report it.
                 return;
             }
         }
         catchedThrowables.put(identity, curtime);
-        TheOneProbe.logger.debug("The One Probe catched error: ", e);
+        TheOneProbe.setup.getLogger().debug("The One Probe catched error: ", e);
     }
 
     public ThrowableIdentity(Throwable e) {

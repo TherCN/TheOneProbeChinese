@@ -1,16 +1,8 @@
 package mcjty.theoneprobe.api;
 
-import java.util.Collection;
-import java.util.List;
-
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.IFluidTank;
-import net.minecraftforge.fluids.capability.IFluidHandler;
 
 /**
  * Information to return to the probe. Most methods here return the same probe info
@@ -24,12 +16,9 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
  */
 public interface IProbeInfo {
 
-    /**
-     * Use STARTLOC/ENDLOC in your strings for localization on the client
-     * Note that usage of this is deprecated. Use TranslationTextComponent instead
-     */
-    String STARTLOC = "{*";
-    String ENDLOC = "*}";
+    /// Use STARTLOC/ENDLOC in your strings for localization on the client
+    public static final String STARTLOC = "{*";
+    public static final String ENDLOC = "*}";
 
     /**
      * Create a default layout style for the horizontal or vertical elements
@@ -78,21 +67,14 @@ public interface IProbeInfo {
     IProbeInfo entity(Entity entity);
 
     /**
-     * Send (possibly formatted) text to the client. Note that you can use
-     * CompoundText as a conveniance and giving you the option to use TextStyleClass
-     * for your text
+     * Note that you can include TextStyleClass info in the given text which
+     * will be translated to the right style client-side. You can also
+     * include STARTLOC/ENDLOC tags to force translation to localized
+     * data on the client
      */
-    IProbeInfo text(ITextComponent text);
-    IProbeInfo text(ITextComponent text, ITextStyle style);
-    IProbeInfo mcText(ITextComponent text);
-    IProbeInfo mcText(ITextComponent text, ITextStyle style);
-    default IProbeInfo text(CompoundText text) { return text(text.get()); }
-    default IProbeInfo text(CompoundText text, ITextStyle style) { return text(text.get(), style); }
-    default IProbeInfo text(String text) { return mcText(new TranslationTextComponent(text)); }
-    default IProbeInfo text(String text, Object...args) { return mcText(new TranslationTextComponent(text, args)); }
-    default IProbeInfo text(String text, ITextStyle style) { return mcText(new TranslationTextComponent(text), style); }
-    default IProbeInfo text(String text, ITextStyle style, Object...args) { return mcText(new TranslationTextComponent(text, args), style); }
-    
+    IProbeInfo text(String text, ITextStyle style);
+    IProbeInfo text(String text);
+
     IProbeInfo item(ItemStack stack, IItemStyle style);
     IProbeInfo item(ItemStack stack);
 
@@ -109,23 +91,7 @@ public interface IProbeInfo {
     IProbeInfo progress(int current, int max);
     IProbeInfo progress(long current, long max, IProgressStyle style);
     IProbeInfo progress(long current, long max);
-    
-    
-    /**
-     * This creates a Tank Progress bar of 100 width with Fluid Icon Rendering
-     */
-    default IProbeInfo tankSimple(int capacity, FluidStack fluid) { return tank(TankReference.createSimple(capacity, fluid));}
-    default IProbeInfo tank(IFluidTank tank) { return tank(TankReference.createTank(tank));}
-    default IProbeInfo tankHandler(IFluidHandler handler) { return tank(TankReference.createHandler(handler));}
-    IProbeInfo tank(TankReference tank);
-    
-    default IProbeInfo tankSimple(int capacity, FluidStack fluid, IProgressStyle style) { return tank(TankReference.createSimple(capacity, fluid), style);}
-    default IProbeInfo tank(IFluidTank tank, IProgressStyle style) { return tank(TankReference.createTank(tank), style);}
-    default IProbeInfo tankHandler(IFluidHandler handler, IProgressStyle style) { return tank(TankReference.createHandler(handler), style);}
-    IProbeInfo tank(TankReference tank, IProgressStyle style);
-    
-    IProbeInfo padding(int width, int height);
-    
+
     /**
      * Create a new horizontal probe info as a child of this one. Note that the returned
      * probe info is the new horizontal layout and not this one!
@@ -144,32 +110,4 @@ public interface IProbeInfo {
      * Add a custom element. Make sure the factory for this element is properly registered.
      */
     IProbeInfo element(IElement element);
-    /**
-     * Bulk adding methods for cached elements to be simpler added.
-     * Stuff that never changes
-     */
-    default IProbeInfo elements(IElement...elements) {
-    	for(IElement element : elements) {
-    		element(element);
-    	}
-    	return this;
-    }
-    /**
-     * Bulk adding methods for cached elements to be simpler added.
-     * Stuff that never changes
-     */
-    default IProbeInfo elements(Collection<IElement> elements) {
-    	for(IElement element : elements) {
-    		element(element);
-    	}
-    	return this;
-    }
-    
-    
-    /**
-     * Allows access to the elements stored in the Probe Info via the interface.
-     * Removes the need of Casting to implementation just to achieve what the user wants.
-     * Or for simplifying counting methods if checks happen if a custom Panel has elements or not.
-     */
-    List<IElement> getElements();
 }

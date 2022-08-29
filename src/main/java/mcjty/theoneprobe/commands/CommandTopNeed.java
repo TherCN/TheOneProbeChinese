@@ -1,37 +1,19 @@
 package mcjty.theoneprobe.commands;
 
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.builder.ArgumentBuilder;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import mcjty.theoneprobe.network.PacketHandler;
-import mcjty.theoneprobe.network.PacketOpenGui;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraftforge.fml.network.NetworkDirection;
+import mcjty.theoneprobe.ClientForgeEventHandlers;
+import mcjty.theoneprobe.TheOneProbe;
+import mcjty.theoneprobe.setup.GuiProxy;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.command.ICommand;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
 
-public class CommandTopNeed implements Command<CommandSource> {
+import java.util.Collections;
+import java.util.List;
 
-    private static final CommandTopNeed CMD = new CommandTopNeed();
-
-    public static ArgumentBuilder<CommandSource, ?> register(CommandDispatcher<CommandSource> dispatcher) {
-        return Commands.literal("need")
-                .requires(cs -> cs.hasPermission(0))
-                .executes(CMD);
-    }
-
-
-    @Override
-    public int run(CommandContext<CommandSource> context) throws CommandSyntaxException {
-        ServerPlayerEntity player = context.getSource().getPlayerOrException();
-        PacketHandler.INSTANCE.sendTo(new PacketOpenGui(PacketOpenGui.GUI_NOTE), player.connection.connection, NetworkDirection.PLAY_TO_CLIENT);
-        return 0;
-    }
-}
-
-/*implements ICommand {
+public class CommandTopNeed implements ICommand {
 
 
     @Override
@@ -51,9 +33,9 @@ public class CommandTopNeed implements Command<CommandSource> {
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) {
-        ClientProxy.ignoreNextGuiClose = true;
-        PlayerEntitySP player = Minecraft.getInstance().player;
-        player.openGui(TheOneProbe.instance, GuiProxy.GUI_NOTE, player.getEntityWorld(), (int) player.getPosX(), (int) player.getPosY(), (int) player.getPosZ());
+        ClientForgeEventHandlers.ignoreNextGuiClose = true;
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        player.openGui(TheOneProbe.instance, GuiProxy.GUI_NOTE, player.getEntityWorld(), (int) player.posX, (int) player.posY, (int) player.posZ);
     }
 
     @Override
@@ -77,4 +59,3 @@ public class CommandTopNeed implements Command<CommandSource> {
         return getName().compareTo(o.getName());
     }
 }
-*/

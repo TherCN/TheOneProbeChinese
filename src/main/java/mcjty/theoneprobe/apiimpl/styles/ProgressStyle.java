@@ -1,11 +1,7 @@
 package mcjty.theoneprobe.apiimpl.styles;
 
-import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProgressStyle;
 import mcjty.theoneprobe.api.NumberFormat;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
 
 /**
  * Style for the progress bar.
@@ -16,25 +12,15 @@ public class ProgressStyle implements IProgressStyle {
     private int filledColor = 0xffaaaaaa;
     private int alternatefilledColor = 0xffaaaaaa;
     private boolean showText = true;
+    private String prefix = "";
+    private String suffix = "";
     private int width = 100;
     private int height = 12;
     private boolean lifeBar = false;
     private boolean armorBar = false;
-	private ElementAlignment alignment = ElementAlignment.ALIGN_TOPLEFT;
-	private ITextComponent prefix = StringTextComponent.EMPTY;
-	private ITextComponent suffix = StringTextComponent.EMPTY;
 
     private NumberFormat numberFormat = NumberFormat.FULL;
-    
-    @Override
-    public IProgressStyle copy()
-    {
-    	return new ProgressStyle()
-    			.borderColor(borderColor).backgroundColor(backgroundColor).filledColor(filledColor).alternateFilledColor(alternatefilledColor)
-    			.showText(showText).width(width).height(height).lifeBar(lifeBar).armorBar(armorBar)
-    			.alignment(alignment).prefix(prefix).suffix(suffix).numberFormat(numberFormat);
-    }
-    
+
     /// The color that is used for the border of the progress bar
     @Override
     public ProgressStyle borderColor(int c) {
@@ -79,33 +65,17 @@ public class ProgressStyle implements IProgressStyle {
 
     @Override
     public ProgressStyle prefix(String prefix) {
-        return prefix(new TranslationTextComponent(prefix));
+        this.prefix = prefix;
+        return this;
     }
 
     @Override
     public ProgressStyle suffix(String suffix) {
-        return suffix(new TranslationTextComponent(suffix));
+        this.suffix = suffix;
+        return this;
     }
-    
+
     @Override
-	public ProgressStyle prefix(ITextComponent prefix) {
-    	this.prefix = prefix;
-		return this;
-	}
-
-	@Override
-	public ProgressStyle suffix(ITextComponent suffix) {
-    	this.suffix = suffix;
-		return this;
-	}
-
-	@Override
-	public ProgressStyle alignment(ElementAlignment align) {
-		this.alignment = align;
-		return this;
-	}
-	
-	@Override
     public ProgressStyle width(int w) {
         this.width = w;
         return this;
@@ -161,29 +131,14 @@ public class ProgressStyle implements IProgressStyle {
 
     @Override
     public String getPrefix() {
-        return prefix.getString();
+        return prefix;
     }
 
     @Override
     public String getSuffix() {
-        return suffix.getString();
+        return suffix;
     }
-    
-	@Override
-	public ITextComponent getPrefixComp() {
-		return prefix;
-	}
 
-	@Override
-	public ITextComponent getSuffixComp() {
-		return suffix;
-	}
-
-	@Override
-	public ElementAlignment getAlignment() {
-		return alignment;
-	}
-    
     @Override
     public int getWidth() {
         return width;

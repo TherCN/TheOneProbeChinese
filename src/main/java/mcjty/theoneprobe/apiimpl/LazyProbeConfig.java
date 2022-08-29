@@ -2,8 +2,6 @@ package mcjty.theoneprobe.apiimpl;
 
 import mcjty.theoneprobe.api.IProbeConfig;
 
-import mcjty.theoneprobe.api.IProbeConfig.ConfigMode;
-
 public class LazyProbeConfig implements IProbeConfig {
 
     private IProbeConfig original;
@@ -248,26 +246,4 @@ public class LazyProbeConfig implements IProbeConfig {
 		realCopy().showSilverfish(mode);
 		return this;
 	}
-
-    @Override
-    public ConfigMode getShowNoteblockInfo() {
-        return original.getShowNoteblockInfo();
-    }
-
-    @Override
-    public IProbeConfig showNoteblockInfo(ConfigMode mode) {
-        realCopy().showNoteblockInfo(mode);
-        return this;
-    }
-
-    @Override
-    public IProbeConfig showSkullInfo(ConfigMode mode) {
-        realCopy().showSkullInfo(mode);
-        return this;
-    }
-
-    @Override
-    public ConfigMode getShowSkullInfo() {
-        return original.getShowSkullInfo();
-    }
 }

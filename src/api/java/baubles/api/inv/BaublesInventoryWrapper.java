@@ -1,15 +1,15 @@
 package baubles.api.inv;
 
 import baubles.api.cap.IBaublesItemHandler;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TextComponentString;
 
 public class BaublesInventoryWrapper implements IInventory {
 	final IBaublesItemHandler handler;
-	final PlayerEntity player;
+	final EntityPlayer player;
 
 	public BaublesInventoryWrapper(IBaublesItemHandler handler) {
 		super();
@@ -17,7 +17,7 @@ public class BaublesInventoryWrapper implements IInventory {
 		this.player = null;
 	}
 
-	public BaublesInventoryWrapper(IBaublesItemHandler handler, PlayerEntity player) {
+	public BaublesInventoryWrapper(IBaublesItemHandler handler, EntityPlayer player) {
 		super();
 		this.handler = handler;
 		this.player = player;
@@ -35,7 +35,7 @@ public class BaublesInventoryWrapper implements IInventory {
 
 	@Override
 	public ITextComponent getDisplayName() {
-		return new StringTextComponent(this.getName());
+		return new TextComponentString(this.getName());
 	}
 
 	@Override
@@ -79,15 +79,15 @@ public class BaublesInventoryWrapper implements IInventory {
 	public void markDirty() { }
 
 	@Override
-	public boolean isUsableByPlayer(PlayerEntity player) {
+	public boolean isUsableByPlayer(EntityPlayer player) {
 		return true;
 	}
 
 	@Override
-	public void openInventory(PlayerEntity player) { }
+	public void openInventory(EntityPlayer player) { }
 
 	@Override
-	public void closeInventory(PlayerEntity player) { }
+	public void closeInventory(EntityPlayer player) { }
 
 	@Override
 	public boolean isItemValidForSlot(int index, ItemStack stack) {

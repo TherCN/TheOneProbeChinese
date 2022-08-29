@@ -2,20 +2,20 @@ package mcjty.theoneprobe.apiimpl;
 
 import mcjty.theoneprobe.api.IProbeHitData;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Direction;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.Vec3d;
 
-import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class ProbeHitData implements IProbeHitData {
 
     private final BlockPos pos;
-    private final Vector3d hitVec;
-    private final Direction side;
+    private final Vec3d hitVec;
+    private final EnumFacing side;
     private final ItemStack pickBlock;
 
-    public ProbeHitData(BlockPos pos, Vector3d hitVec, Direction side, @Nonnull ItemStack pickBlock) {
+    public ProbeHitData(BlockPos pos, Vec3d hitVec, EnumFacing side, ItemStack pickBlock) {
         this.pos = pos;
         this.hitVec = hitVec;
         this.side = side;
@@ -28,16 +28,16 @@ public class ProbeHitData implements IProbeHitData {
     }
 
     @Override
-    public Vector3d getHitVec() {
+    public Vec3d getHitVec() {
         return hitVec;
     }
 
     @Override
-    public Direction getSideHit() {
+    public EnumFacing getSideHit() {
         return side;
     }
 
-    @Nonnull
+    @Nullable
     @Override
     public ItemStack getPickBlock() {
         return pickBlock;

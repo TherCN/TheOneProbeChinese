@@ -7,13 +7,7 @@ public class IconStyle implements IIconStyle {
     private int height = 16;
     private int txtw = 256;
     private int txth = 256;
-    private int color = -1;
-    
-    @Override
-    public IIconStyle copy() {
-    	return new IconStyle().bounds(width, height).textureBounds(txtw, txth).color(color);
-    }
-    
+
     @Override
     public IIconStyle width(int w) {
         width = w;
@@ -56,16 +50,5 @@ public class IconStyle implements IIconStyle {
     @Override
     public int getTextureHeight() {
         return txth;
-    }
-    
-    @Override
-    public IIconStyle color(int color) {
-    	this.color = color;
-    	return this;
-    }
-    
-    @Override
-    public int getColor() {
-    	return color;
     }
 }

@@ -2,13 +2,9 @@ package mcjty.theoneprobe.api;
 
 /**
  * The style for the overlay.
- * Do not create custom implementations of this interface. This interface is implemented by TOP
- * and you can get instances from either IProbeInfo or else the IStyleManager
  */
 public interface IOverlayStyle {
-	
-	
-	IOverlayStyle copy();
+
     /**
      * The offset of the border around the box. Use 0 to disable.
      */
@@ -29,7 +25,6 @@ public interface IOverlayStyle {
      * 0xFFFFFFFF is pure white, 0x22FF0000 is a very faint transparent red.
      */
     IOverlayStyle borderColor(int color);
-    default IOverlayStyle borderColor(Color color) { return borderColor(color.getRGB()); }
 
     int getBorderColor();
 
@@ -37,10 +32,9 @@ public interface IOverlayStyle {
      * The color of the box.
      */
     IOverlayStyle boxColor(int color);
-    default IOverlayStyle boxColor(Color color) { return boxColor(color.getRGB()); }
-    
+
     int getBoxColor();
-    
+
     /**
      * The location of the overlay box.
      * You can use -1 to indicate some location is not to be used. If
@@ -52,7 +46,7 @@ public interface IOverlayStyle {
      * be the X coordinate of the right side of the overlay box.
      */
     IOverlayStyle location(int leftX, int rightX, int topY, int bottomY);
-    
+
     int getLeftX();
 
     int getRightX();

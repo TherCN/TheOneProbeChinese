@@ -1,39 +1,45 @@
 package mcjty.theoneprobe.apiimpl;
 
+import io.netty.buffer.ByteBuf;
 import mcjty.theoneprobe.TheOneProbe;
-import mcjty.theoneprobe.api.*;
+import mcjty.theoneprobe.api.ElementAlignment;
+import mcjty.theoneprobe.api.IElement;
+import mcjty.theoneprobe.api.IElementFactory;
 import mcjty.theoneprobe.apiimpl.elements.ElementVertical;
-import mcjty.theoneprobe.apiimpl.styles.LayoutStyle;
-import net.minecraft.network.PacketBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProbeInfo extends ElementVertical {
 
-    public void fromBytes(PacketBuffer buf) {
+    public List<IElement> getElements() {
+        return children;
+    }
+
+    public void fromBytes(ByteBuf buf) {
         children = createElements(buf);
     }
 
     public ProbeInfo() {
-    	super(new LayoutStyle().spacing(2).alignment(ElementAlignment.ALIGN_TOPLEFT));
+        super((Integer) null, 2, ElementAlignment.ALIGN_TOPLEFT);
     }
 
-    public static List<IElement> createElements(PacketBuffer buf) {
-        int size = buf.readVarInt();
+    public static List<IElement> createElements(ByteBuf buf) {
+        int size = buf.readShort();
         List<IElement> elements = new ArrayList<>(size);
         for (int i = 0 ; i < size ; i++) {
-            int id = buf.readVarInt();
+            int id = buf.readInt();
             IElementFactory factory = TheOneProbe.theOneProbeImp.getElementFactory(id);
-            elements.add(factory.createElement(buf));
+            IElement element = factory.createElement(buf);
+            elements.add(element);
         }
         return elements;
     }
 
-    public static void writeElements(List<IElement> elements, PacketBuffer buf) {
-        buf.writeVarInt(elements.size());
+    public static void writeElements(List<IElement> elements, ByteBuf buf) {
+        buf.writeShort(elements.size());
         for (IElement element : elements) {
-            buf.writeVarInt(element.getID());
+            buf.writeInt(element.getID());
             element.toBytes(buf);
         }
     }

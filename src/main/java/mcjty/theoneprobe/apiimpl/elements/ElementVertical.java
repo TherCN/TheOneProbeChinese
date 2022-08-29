@@ -1,47 +1,34 @@
 package mcjty.theoneprobe.apiimpl.elements;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import io.netty.buffer.ByteBuf;
 import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IElement;
-import mcjty.theoneprobe.api.ILayoutStyle;
 import mcjty.theoneprobe.apiimpl.TheOneProbeImp;
-import mcjty.theoneprobe.apiimpl.styles.LayoutStyle;
-import net.minecraft.network.PacketBuffer;
 
 public class ElementVertical extends AbstractElementPanel {
 
     public static final int SPACING = 2;
-    
-    public ElementVertical(){
-    	super(new LayoutStyle());
-    }
-    
-    public ElementVertical(ILayoutStyle style) {
-    	super(style);
-    }
-    
-    @Deprecated
+
     public ElementVertical(Integer borderColor, int spacing, ElementAlignment alignment) {
         super(borderColor, spacing, alignment);
     }
 
-    public ElementVertical(PacketBuffer buf) {
+    public ElementVertical(ByteBuf buf) {
         super(buf);
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int x, int y) {
-        super.render(matrixStack, x, y);
-        if (layout.getBorderColor() != null) {
+    public void render(int x, int y) {
+        super.render(x, y);
+        if (borderColor != null) {
             x += 3;
             y += 3;
         }
-		y += layout.getTopPadding();
-		int totWidth = getWidth() - getXPadding();
+        int totWidth = getWidth();
         for (IElement element : children) {
             int w = element.getWidth();
             int cx = x;
-            switch (layout.getAlignment()) {
+            switch (alignment) {
                 case ALIGN_TOPLEFT:
                     break;
                 case ALIGN_CENTER:
@@ -51,13 +38,13 @@ public class ElementVertical extends AbstractElementPanel {
                     cx = x + totWidth - w;
                     break;
             }
-            element.render(matrixStack, cx + layout.getLeftPadding(), y);
-            y += element.getHeight() + layout.getSpacing();
+            element.render(cx, y);
+            y += element.getHeight() + spacing;
         }
     }
-    
+
     private int getBorderSpacing() {
-        return layout.getBorderColor() == null ? 0 : 6;
+        return borderColor == null ? 0 : 6;
     }
 
     @Override
@@ -66,16 +53,19 @@ public class ElementVertical extends AbstractElementPanel {
         for (IElement element : children) {
             h += element.getHeight();
         }
-        return h + (layout.getSpacing() * (children.size() - 1)) + getBorderSpacing() + getYPadding();
+        return h + spacing * (children.size() - 1) + getBorderSpacing();
     }
 
     @Override
     public int getWidth() {
         int w = 0;
         for (IElement element : children) {
-        	w = Math.max(w, element.getWidth());
+            int ww = element.getWidth();
+            if (ww > w) {
+                w = ww;
+            }
         }
-        return w + getBorderSpacing() + getXPadding();
+        return w + getBorderSpacing();
     }
 
     @Override

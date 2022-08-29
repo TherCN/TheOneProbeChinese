@@ -1,25 +1,11 @@
 package mcjty.theoneprobe.apiimpl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import mcjty.theoneprobe.config.ConfigSetup;
 import mcjty.theoneprobe.TheOneProbe;
 import mcjty.theoneprobe.api.*;
-import mcjty.theoneprobe.apiimpl.elements.ElementEntity;
-import mcjty.theoneprobe.apiimpl.elements.ElementHorizontal;
-import mcjty.theoneprobe.apiimpl.elements.ElementIcon;
-import mcjty.theoneprobe.apiimpl.elements.ElementItemLabel;
-import mcjty.theoneprobe.apiimpl.elements.ElementItemStack;
-import mcjty.theoneprobe.apiimpl.elements.ElementPadding;
-import mcjty.theoneprobe.apiimpl.elements.ElementProgress;
-import mcjty.theoneprobe.apiimpl.elements.ElementTank;
-import mcjty.theoneprobe.apiimpl.elements.ElementText;
-import mcjty.theoneprobe.apiimpl.elements.ElementVertical;
-import mcjty.theoneprobe.apiimpl.styles.StyleManager;
-import mcjty.theoneprobe.config.Config;
+import mcjty.theoneprobe.apiimpl.elements.*;
+
+import java.util.*;
 
 public class TheOneProbeImp implements ITheOneProbe {
 
@@ -31,17 +17,14 @@ public class TheOneProbeImp implements ITheOneProbe {
     public static int ELEMENT_ENTITY;
     public static int ELEMENT_ICON;
     public static int ELEMENT_ITEMLABEL;
-    public static int ELEMENT_TANK;
-    public static int ELEMENT_PADDING;
 
-    private final StyleManager styleManager = new StyleManager();
     private List<IProbeConfigProvider> configProviders = new ArrayList<>();
 
     private List<IProbeInfoProvider> providers = new ArrayList<>();
     private List<IProbeInfoEntityProvider> entityProviders = new ArrayList<>();
     private List<IBlockDisplayOverride> blockOverrides = new ArrayList<>();
     private List<IEntityDisplayOverride> entityOverrides = new ArrayList<>();
-    private Map<Integer, IElementFactory> factories = new HashMap<>();
+    private Map<Integer,IElementFactory> factories = new HashMap<>();
     private int lastId = 0;
 
     public TheOneProbeImp() {
@@ -56,8 +39,6 @@ public class TheOneProbeImp implements ITheOneProbe {
         ELEMENT_ENTITY = TheOneProbe.theOneProbeImp.registerElementFactory(ElementEntity::new);
         ELEMENT_ICON = TheOneProbe.theOneProbeImp.registerElementFactory(ElementIcon::new);
         ELEMENT_ITEMLABEL = TheOneProbe.theOneProbeImp.registerElementFactory(ElementItemLabel::new);
-        ELEMENT_TANK = TheOneProbe.theOneProbeImp.registerElementFactory(ElementTank::new);
-        ELEMENT_PADDING = TheOneProbe.theOneProbeImp.registerElementFactory(ElementPadding::new);
     }
 
     private int findProvider(String id) {
@@ -192,7 +173,7 @@ public class TheOneProbeImp implements ITheOneProbe {
 
     @Override
     public IProbeConfig createProbeConfig() {
-        return Config.getDefaultConfig().lazyCopy();
+        return ConfigSetup.getDefaultConfig().lazyCopy();
     }
 
     @Override
@@ -220,10 +201,5 @@ public class TheOneProbeImp implements ITheOneProbe {
 
     public List<IEntityDisplayOverride> getEntityOverrides() {
         return entityOverrides;
-    }
-
-    @Override
-    public IStyleManager getStyleManager() {
-        return styleManager;
     }
 }

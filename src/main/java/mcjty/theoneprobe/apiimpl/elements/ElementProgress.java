@@ -1,16 +1,13 @@
 package mcjty.theoneprobe.apiimpl.elements;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-import mcjty.theoneprobe.api.ElementAlignment;
+import io.netty.buffer.ByteBuf;
 import mcjty.theoneprobe.api.IElement;
 import mcjty.theoneprobe.api.IProgressStyle;
 import mcjty.theoneprobe.api.NumberFormat;
 import mcjty.theoneprobe.apiimpl.TheOneProbeImp;
 import mcjty.theoneprobe.apiimpl.client.ElementProgressRender;
 import mcjty.theoneprobe.apiimpl.styles.ProgressStyle;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
+import mcjty.theoneprobe.network.NetworkTools;
 
 import java.text.DecimalFormat;
 
@@ -26,14 +23,14 @@ public class ElementProgress implements IElement {
         this.style = style;
     }
 
-    public ElementProgress(PacketBuffer buf) {
+    public ElementProgress(ByteBuf buf) {
         current = buf.readLong();
         max = buf.readLong();
         style = new ProgressStyle()
                 .width(buf.readInt())
                 .height(buf.readInt())
-                .prefix(buf.readComponent())
-                .suffix(buf.readComponent())
+                .prefix(NetworkTools.readStringUTF8(buf))
+                .suffix(NetworkTools.readStringUTF8(buf))
                 .borderColor(buf.readInt())
                 .filledColor(buf.readInt())
                 .alternateFilledColor(buf.readInt())
@@ -41,51 +38,49 @@ public class ElementProgress implements IElement {
                 .showText(buf.readBoolean())
                 .numberFormat(NumberFormat.values()[buf.readByte()])
                 .lifeBar(buf.readBoolean())
-                .armorBar(buf.readBoolean())
-                .alignment(buf.readEnum(ElementAlignment.class));
+                .armorBar(buf.readBoolean());
     }
-    
-    // Helper method that allows to edit the style of a helper method reducing copy/pasting code from internals
-    public IProgressStyle getStyle() {
-    	return style;
-    }
-    
+
     private static DecimalFormat dfCommas = new DecimalFormat("###,###");
 
     /**
      * If the suffix starts with 'm' we can possibly drop that
      */
-	public static ITextComponent format(long in, NumberFormat style, ITextComponent suffix) {
-		switch (style) {
-			case FULL:
-				return new StringTextComponent(Long.toString(in)).append(suffix);
-			case COMPACT:
-				if (in < 1000) {
-                    return new StringTextComponent(Long.toString(in) + " ").append(suffix);
+    public static String format(long in, NumberFormat style, String suffix) {
+        switch (style) {
+            case FULL:
+                return Long.toString(in) + suffix;
+            case COMPACT: {
+                int unit = 1000;
+                if (in < unit) {
+                    return Long.toString(in) + " " + suffix;
                 }
-				int unit = 1000;
-				int exp = (int) (Math.log(in) / Math.log(unit));
-				String s = suffix.getString();
-				if (s.startsWith("m")) {
-					s = s.substring(1);
-					if (exp - 2 >= 0) {
-						char pre = "kMGTPE".charAt(exp - 2);
-						return new StringTextComponent(String.format("%.1f %s", Double.valueOf(in / Math.pow(unit, exp)), Character.valueOf(pre))).append(new StringTextComponent(s).withStyle(suffix.getStyle()));
-					}
-					return new StringTextComponent(String.format("%.1f", Double.valueOf(in / Math.pow(unit, exp)))).append(new StringTextComponent(s).withStyle(suffix.getStyle()));
-				}
-				char pre = "kMGTPE".charAt(exp - 1);
-				return new StringTextComponent(String.format("%.1f %s", Double.valueOf(in / Math.pow(unit, exp)), Character.valueOf(pre))).append(suffix);
-			case COMMAS:
-				return new StringTextComponent(dfCommas.format(in)).append(suffix);
-			case NONE: return suffix;
-		}
-		return new StringTextComponent(Long.toString(in));
-	}
+                int exp = (int) (Math.log(in) / Math.log(unit));
+                char pre;
+                if (suffix.startsWith("m")) {
+                    suffix = suffix.substring(1);
+                    if (exp - 2 >= 0) {
+                        pre = "kMGTPE".charAt(exp - 2);
+                        return String.format("%.1f %s", in / Math.pow(unit, exp), pre) + suffix;
+                    } else {
+                        return String.format("%.1f %s", in / Math.pow(unit, exp), suffix);
+                    }
+                } else {
+                    pre = "kMGTPE".charAt(exp - 1);
+                    return String.format("%.1f %s", in / Math.pow(unit, exp), pre) + suffix;
+                }
+            }
+            case COMMAS:
+                return dfCommas.format(in) + suffix;
+            case NONE:
+                return suffix;
+        }
+        return Long.toString(in);
+    }
 
     @Override
-    public void render(MatrixStack matrixStack, int x, int y) {
-        ElementProgressRender.render(style, current, max, matrixStack, x, y, getWidth(), getHeight());
+    public void render(int x, int y) {
+        ElementProgressRender.render(style, current, max, x, y, getWidth(), getHeight());
     }
 
     @Override
@@ -106,13 +101,13 @@ public class ElementProgress implements IElement {
     }
 
     @Override
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(ByteBuf buf) {
         buf.writeLong(current);
         buf.writeLong(max);
         buf.writeInt(style.getWidth());
         buf.writeInt(style.getHeight());
-        buf.writeComponent(style.getPrefixComp());
-        buf.writeComponent(style.getSuffixComp());
+        NetworkTools.writeStringUTF8(buf, style.getPrefix());
+        NetworkTools.writeStringUTF8(buf, style.getSuffix());
         buf.writeInt(style.getBorderColor());
         buf.writeInt(style.getFilledColor());
         buf.writeInt(style.getAlternatefilledColor());
@@ -121,7 +116,6 @@ public class ElementProgress implements IElement {
         buf.writeByte(style.getNumberFormat().ordinal());
         buf.writeBoolean(style.isLifeBar());
         buf.writeBoolean(style.isArmorBar());
-        buf.writeEnum(style.getAlignment());
     }
 
     @Override

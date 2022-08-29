@@ -1,6 +1,6 @@
 package mcjty.theoneprobe.apiimpl.elements;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import io.netty.buffer.ByteBuf;
 import mcjty.theoneprobe.api.IElement;
 import mcjty.theoneprobe.api.IEntityStyle;
 import mcjty.theoneprobe.apiimpl.TheOneProbeImp;
@@ -8,17 +8,15 @@ import mcjty.theoneprobe.apiimpl.client.ElementEntityRender;
 import mcjty.theoneprobe.apiimpl.styles.EntityStyle;
 import mcjty.theoneprobe.network.NetworkTools;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.entity.EntityList;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class ElementEntity implements IElement {
 
     private final String entityName;
     private final Integer playerID;
-    private final CompoundNBT entityNBT;
+    private final NBTTagCompound entityNBT;
     private final IEntityStyle style;
 
     public ElementEntity(String entityName, IEntityStyle style) {
@@ -29,32 +27,29 @@ public class ElementEntity implements IElement {
     }
 
     public ElementEntity(Entity entity, IEntityStyle style) {
-        if (entity instanceof PlayerEntity) {
-            PlayerEntity player = (PlayerEntity) entity;
+        if (entity instanceof EntityPlayer) {
+            EntityPlayer player = (EntityPlayer) entity;
             entityNBT = null;
-            playerID = player.getId();
+            playerID = player.getEntityId();
         } else {
-            entityNBT = new CompoundNBT();
-            entity.saveWithoutId(entityNBT);
-//            entityNBT = entity.serializeNBT();
+            entityNBT = entity.serializeNBT();
             playerID = null;
         }
-        ResourceLocation registryName = entity.getType().getRegistryName();
-        if (registryName == null) {
-            registryName = ForgeRegistries.ENTITIES.getKey(entity.getType());
-        }
-        this.entityName = registryName.toString();
-//        this.entityName = EntityList.getEntityString(entity);
+        this.entityName = EntityList.getEntityString(entity);
         this.style = style;
     }
 
-    public ElementEntity(PacketBuffer buf) {
+    public ElementEntity(ByteBuf buf) {
         entityName = NetworkTools.readString(buf);
         style = new EntityStyle()
                 .width(buf.readInt())
                 .height(buf.readInt())
                 .scale(buf.readFloat());
-        entityNBT = buf.readNbt();
+        if (buf.readBoolean()) {
+            entityNBT = NetworkTools.readNBT(buf);
+        } else {
+            entityNBT = null;
+        }
         if (buf.readBoolean()) {
             playerID = buf.readInt();
         } else {
@@ -63,11 +58,11 @@ public class ElementEntity implements IElement {
     }
 
     @Override
-    public void render(MatrixStack matrixStack, int x, int y) {
+    public void render(int x, int y) {
         if (playerID != null) {
-            ElementEntityRender.renderPlayer(entityName, playerID, style, matrixStack, x, y);
+            ElementEntityRender.renderPlayer(entityName, playerID, style, x, y);
         } else {
-            ElementEntityRender.render(entityName, entityNBT, style, matrixStack, x, y);
+            ElementEntityRender.render(entityName, entityNBT, style, x, y);
         }
     }
 
@@ -82,12 +77,17 @@ public class ElementEntity implements IElement {
     }
 
     @Override
-    public void toBytes(PacketBuffer buf) {
+    public void toBytes(ByteBuf buf) {
         NetworkTools.writeString(buf, entityName);
         buf.writeInt(style.getWidth());
         buf.writeInt(style.getHeight());
         buf.writeFloat(style.getScale());
-        buf.writeNbt(entityNBT);
+        if (entityNBT != null) {
+            buf.writeBoolean(true);
+            NetworkTools.writeNBT(buf, entityNBT);
+        } else {
+            buf.writeBoolean(false);
+        }
         if (playerID != null) {
             buf.writeBoolean(true);
             buf.writeInt(playerID);

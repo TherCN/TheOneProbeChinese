@@ -1,12 +1,12 @@
 package mcjty.theoneprobe.apiimpl.elements;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+import io.netty.buffer.ByteBuf;
 import mcjty.theoneprobe.api.IElement;
 import mcjty.theoneprobe.api.IIconStyle;
 import mcjty.theoneprobe.apiimpl.TheOneProbeImp;
 import mcjty.theoneprobe.apiimpl.client.ElementIconRender;
 import mcjty.theoneprobe.apiimpl.styles.IconStyle;
-import net.minecraft.network.PacketBuffer;
+import mcjty.theoneprobe.network.NetworkTools;
 import net.minecraft.util.ResourceLocation;
 
 public class ElementIcon implements IElement {
@@ -27,8 +27,8 @@ public class ElementIcon implements IElement {
         this.style = style;
     }
 
-    public ElementIcon(PacketBuffer buf) {
-        icon = buf.readResourceLocation();
+    public ElementIcon(ByteBuf buf) {
+        icon = new ResourceLocation(NetworkTools.readString(buf), NetworkTools.readString(buf));
         u = buf.readInt();
         v = buf.readInt();
         w = buf.readInt();
@@ -37,17 +37,12 @@ public class ElementIcon implements IElement {
                 .width(buf.readInt())
                 .height(buf.readInt())
                 .textureWidth(buf.readInt())
-                .textureHeight(buf.readInt())
-                .color(buf.readInt());
+                .textureHeight(buf.readInt());
     }
-    
-    public IIconStyle getStyle() {
-    	return style;
-    }
-    
+
     @Override
-    public void render(MatrixStack matrixStack, int x, int y) {
-        ElementIconRender.render(icon, matrixStack, x, y, w, h, u, v, style.getTextureWidth(), style.getTextureHeight(), style.getColor());
+    public void render(int x, int y) {
+        ElementIconRender.render(icon, x, y, w, h, u, v, style.getTextureWidth(), style.getTextureHeight());
     }
 
     @Override
@@ -61,8 +56,9 @@ public class ElementIcon implements IElement {
     }
 
     @Override
-    public void toBytes(PacketBuffer buf) {
-        buf.writeResourceLocation(icon);
+    public void toBytes(ByteBuf buf) {
+        NetworkTools.writeString(buf, icon.getResourceDomain());
+        NetworkTools.writeString(buf, icon.getResourcePath());
         buf.writeInt(u);
         buf.writeInt(v);
         buf.writeInt(w);
@@ -71,7 +67,6 @@ public class ElementIcon implements IElement {
         buf.writeInt(style.getHeight());
         buf.writeInt(style.getTextureWidth());
         buf.writeInt(style.getTextureHeight());
-        buf.writeInt(style.getColor());
     }
 
     @Override

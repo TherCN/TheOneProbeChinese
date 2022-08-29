@@ -1,6 +1,12 @@
 package mcjty.theoneprobe.config;
 
-public class TopModGuiFactory {} /* @todo 1.15 implements IModGuiFactory {
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraftforge.fml.client.IModGuiFactory;
+
+import java.util.Set;
+
+public class TopModGuiFactory implements IModGuiFactory {
 
     @Override
     public void initialize(Minecraft minecraftInstance) {
@@ -13,10 +19,8 @@ public class TopModGuiFactory {} /* @todo 1.15 implements IModGuiFactory {
     }
 
     @Override
-    public Screen createConfigGui(Screen parentScreen) {
-//        return new TopModConfigGui(parentScreen);
-        // @todo 1.14
-        return null;
+    public GuiScreen createConfigGui(GuiScreen parentScreen) {
+        return new TopModConfigGui(parentScreen);
     }
 
     @Override
@@ -24,4 +28,3 @@ public class TopModGuiFactory {} /* @todo 1.15 implements IModGuiFactory {
         return null;
     }
 }
-*/

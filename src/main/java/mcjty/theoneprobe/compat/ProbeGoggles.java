@@ -1,6 +1,17 @@
 package mcjty.theoneprobe.compat;
 
-public class ProbeGoggles {}/*extends Item implements IBauble {
+import baubles.api.BaubleType;
+import baubles.api.IBauble;
+import mcjty.theoneprobe.TheOneProbe;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+public class ProbeGoggles extends Item implements IBauble {
 
     public ProbeGoggles() {
         setUnlocalizedName(TheOneProbe.MODID + ".probe_goggles");
@@ -10,7 +21,7 @@ public class ProbeGoggles {}/*extends Item implements IBauble {
 
     @SideOnly(Side.CLIENT)
     public void initModel() {
-        ModelLoader.setCustomModelResourceLocation(this, 0, new ModelResourceLocation(getRegistryName(), "inventory"));
+        ModelLoader.setCustomModelResourceLocation(this, 0, new ModelResourceLocation(getRegistryName(), "物品栏"));
     }
 
     @Override
@@ -48,4 +59,3 @@ public class ProbeGoggles {}/*extends Item implements IBauble {
         return false;
     }
 }
-*/

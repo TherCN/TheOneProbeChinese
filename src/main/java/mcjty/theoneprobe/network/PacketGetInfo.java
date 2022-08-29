@@ -1,65 +1,68 @@
 package mcjty.theoneprobe.network;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import mcjty.theoneprobe.TheOneProbe;
 import mcjty.theoneprobe.api.*;
 import mcjty.theoneprobe.apiimpl.ProbeHitData;
 import mcjty.theoneprobe.apiimpl.ProbeInfo;
-import mcjty.theoneprobe.config.Config;
+import mcjty.theoneprobe.config.ConfigSetup;
 import mcjty.theoneprobe.items.ModItems;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
-import net.minecraft.util.RegistryKey;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.fml.network.NetworkDirection;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.DimensionManager;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static mcjty.theoneprobe.api.TextStyleClass.ERROR;
 import static mcjty.theoneprobe.api.TextStyleClass.LABEL;
-import static mcjty.theoneprobe.config.Config.PROBE_NEEDEDFOREXTENDED;
-import static mcjty.theoneprobe.config.Config.PROBE_NEEDEDHARD;
+import static mcjty.theoneprobe.config.ConfigSetup.PROBE_NEEDEDFOREXTENDED;
+import static mcjty.theoneprobe.config.ConfigSetup.PROBE_NEEDEDHARD;
 
-public class PacketGetInfo  {
+public class PacketGetInfo implements IMessage {
 
-    private RegistryKey<World> dim;
+    private int dim;
     private BlockPos pos;
     private ProbeMode mode;
-    private Direction sideHit;
-    private Vector3d hitVec;
-    @Nonnull private ItemStack pickBlock;
+    private EnumFacing sideHit;
+    private Vec3d hitVec;
+    private ItemStack pickBlock;
 
-    public PacketGetInfo(PacketBuffer buf) {
-        dim = RegistryKey.create(Registry.DIMENSION_REGISTRY, buf.readResourceLocation());
-        pos = buf.readBlockPos();
+    @Override
+    public void fromBytes(ByteBuf buf) {
+        dim = buf.readInt();
+        pos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
         mode = ProbeMode.values()[buf.readByte()];
         byte sideByte = buf.readByte();
         if (sideByte == 127) {
             sideHit = null;
         } else {
-            sideHit = Direction.values()[sideByte];
+            sideHit = EnumFacing.values()[sideByte];
         }
         if (buf.readBoolean()) {
-            hitVec = new Vector3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+            hitVec = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
         }
-        pickBlock = buf.readItem();
+        pickBlock = ByteBufUtils.readItemStack(buf);
     }
 
-    public void toBytes(PacketBuffer buf) {
-        buf.writeResourceLocation(dim.location());
-        buf.writeBlockPos(pos);
+    @Override
+    public void toBytes(ByteBuf buf) {
+        buf.writeInt(dim);
+        buf.writeInt(pos.getX());
+        buf.writeInt(pos.getY());
+        buf.writeInt(pos.getZ());
         buf.writeByte(mode.ordinal());
         buf.writeByte(sideHit == null ? 127 : sideHit.ordinal());
         if (hitVec == null) {
@@ -71,42 +74,47 @@ public class PacketGetInfo  {
             buf.writeDouble(hitVec.z);
         }
 
-        PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
-        buffer.writeItem(pickBlock);
-        if (buffer.writerIndex() <= Config.maxPacketToServer.get()) {
+        ByteBuf buffer = Unpooled.buffer();
+        ByteBufUtils.writeItemStack(buffer, pickBlock);
+        if (buffer.writerIndex() <= ConfigSetup.maxPacketToServer) {
             buf.writeBytes(buffer);
         } else {
-            ItemStack copy = new ItemStack(pickBlock.getItem(), pickBlock.getCount());
-            buf.writeItem(copy);
+            ItemStack copy = new ItemStack(pickBlock.getItem(), pickBlock.getCount(), pickBlock.getMetadata());
+            ByteBufUtils.writeItemStack(buf, copy);
         }
     }
 
     public PacketGetInfo() {
     }
 
-    public PacketGetInfo(RegistryKey<World> dim, BlockPos pos, ProbeMode mode, RayTraceResult mouseOver, @Nonnull ItemStack pickBlock) {
+    public PacketGetInfo(int dim, BlockPos pos, ProbeMode mode, RayTraceResult mouseOver, ItemStack pickBlock) {
         this.dim = dim;
         this.pos = pos;
         this.mode = mode;
-        this.sideHit = ((BlockRayTraceResult)mouseOver).getDirection();
-        this.hitVec = mouseOver.getLocation();
+        this.sideHit = mouseOver.sideHit;
+        this.hitVec = mouseOver.hitVec;
         this.pickBlock = pickBlock;
     }
 
-    public void handle(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            ServerWorld world = ctx.get().getSender().server.getLevel(dim);
+    public static class Handler implements IMessageHandler<PacketGetInfo, IMessage> {
+        @Override
+        public IMessage onMessage(PacketGetInfo message, MessageContext ctx) {
+            FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> handle(message, ctx));
+            return null;
+        }
+
+        private void handle(PacketGetInfo message, MessageContext ctx) {
+            WorldServer world = DimensionManager.getWorld(message.dim);
             if (world != null) {
-                ProbeInfo probeInfo = getProbeInfo(ctx.get().getSender(),
-                        mode, world, pos, sideHit, hitVec, pickBlock);
-                PacketHandler.INSTANCE.sendTo(new PacketReturnInfo(dim, pos, probeInfo), ctx.get().getSender().connection.getConnection(), NetworkDirection.PLAY_TO_CLIENT);
+                ProbeInfo probeInfo = getProbeInfo(ctx.getServerHandler().player,
+                        message.mode, world, message.pos, message.sideHit, message.hitVec, message.pickBlock);
+                PacketHandler.INSTANCE.sendTo(new PacketReturnInfo(message.dim, message.pos, probeInfo), ctx.getServerHandler().player);
             }
-        });
-        ctx.get().setPacketHandled(true);
+        }
     }
 
-    private static ProbeInfo getProbeInfo(PlayerEntity player, ProbeMode mode, World world, BlockPos blockPos, Direction sideHit, Vector3d hitVec, @Nonnull ItemStack pickBlock) {
-        if (Config.needsProbe.get() == PROBE_NEEDEDFOREXTENDED) {
+    private static ProbeInfo getProbeInfo(EntityPlayer player, ProbeMode mode, World world, BlockPos blockPos, EnumFacing sideHit, Vec3d hitVec, ItemStack pickBlock) {
+        if (ConfigSetup.needsProbe == PROBE_NEEDEDFOREXTENDED) {
             // We need a probe only for extended information
             if (!ModItems.hasAProbeSomewhere(player)) {
                 // No probe anywhere, switch EXTENDED to NORMAL
@@ -114,35 +122,30 @@ public class PacketGetInfo  {
                     mode = ProbeMode.NORMAL;
                 }
             }
-        } else if (Config.needsProbe.get() == PROBE_NEEDEDHARD && !ModItems.hasAProbeSomewhere(player)) {
+        } else if (ConfigSetup.needsProbe == PROBE_NEEDEDHARD && !ModItems.hasAProbeSomewhere(player)) {
             // The server says we need a probe but we don't have one in our hands
             return null;
         }
 
+        IBlockState state = world.getBlockState(blockPos);
         ProbeInfo probeInfo = TheOneProbe.theOneProbeImp.create();
-        if (world.hasChunkAt(blockPos)) {
-            BlockState state = world.getBlockState(blockPos);
-            IProbeHitData data = new ProbeHitData(blockPos, hitVec, sideHit, pickBlock);
+        IProbeHitData data = new ProbeHitData(blockPos, hitVec, sideHit, pickBlock);
 
-            IProbeConfig probeConfig = TheOneProbe.theOneProbeImp.createProbeConfig();
-            List<IProbeConfigProvider> configProviders = TheOneProbe.theOneProbeImp.getConfigProviders();
-            for (IProbeConfigProvider configProvider : configProviders) {
-                configProvider.getProbeConfig(probeConfig, player, world, state, data);
-            }
-            Config.setRealConfig(probeConfig);
+        IProbeConfig probeConfig = TheOneProbe.theOneProbeImp.createProbeConfig();
+        List<IProbeConfigProvider> configProviders = TheOneProbe.theOneProbeImp.getConfigProviders();
+        for (IProbeConfigProvider configProvider : configProviders) {
+            configProvider.getProbeConfig(probeConfig, player, world, state, data);
+        }
+        ConfigSetup.setRealConfig(probeConfig);
 
-            List<IProbeInfoProvider> providers = TheOneProbe.theOneProbeImp.getProviders();
-            for (IProbeInfoProvider provider : providers) {
-                try {
-                    provider.addProbeInfo(mode, probeInfo, player, world, state, data);
-                } catch (Throwable e) {
-                    ThrowableIdentity.registerThrowable(e);
-                    probeInfo.text(CompoundText.create().style(LABEL).text("Error: ").style(ERROR).text(provider.getID()));
-                }
+        List<IProbeInfoProvider> providers = TheOneProbe.theOneProbeImp.getProviders();
+        for (IProbeInfoProvider provider : providers) {
+            try {
+                provider.addProbeInfo(mode, probeInfo, player, world, state, data);
+            } catch (Throwable e) {
+                ThrowableIdentity.registerThrowable(e);
+                probeInfo.text(LABEL + "Error: " + ERROR + provider.getID());
             }
-        } else {
-            // Block is not loaded. Something fishy is going on
-            probeInfo.text(CompoundText.create().style(LABEL).text("Error: ").style(ERROR).text("Chunk not loaded!"));
         }
         return probeInfo;
     }
