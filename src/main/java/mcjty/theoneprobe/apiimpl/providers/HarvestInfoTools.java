@@ -27,7 +27,7 @@ public class HarvestInfoTools {
 
     private static final ResourceLocation ICONS = new ResourceLocation(TheOneProbe.MODID, "textures/gui/icons.png");
     private static String[] harvestLevels = new String[]{
-            "石",
+            "石头",
             "铁",
             "钻石",
             "黑曜石",
@@ -53,10 +53,9 @@ public class HarvestInfoTools {
             } else {
                 harvestName = harvestLevels[harvestLevel];
             }
-            probeInfo.text(LABEL + "工具: " + INFO + harvestTool + " (挖掘等级: " + harvestName + ")");
-       }
+            probeInfo.text(LABEL + "工具: " + INFO + harvestTool + " (挖掘等级:" + harvestName + ")");
+        }
     }
-
 
     static void showCanBeHarvested(IProbeInfo probeInfo, World world, BlockPos pos, Block block, EntityPlayer player) {
         if (ModItems.isProbeInHand(player.getHeldItemMainhand())) {
@@ -67,7 +66,7 @@ public class HarvestInfoTools {
 
         boolean harvestable = block.canHarvestBlock(world, pos, player) && world.getBlockState(pos).getBlockHardness(world, pos) >= 0;
         if (harvestable) {
-            probeInfo.text(OK + "可收获");
+            probeInfo.text(OK + "可收货");
         } else {
             probeInfo.text(WARNING + "不可收获");
         }
@@ -78,16 +77,7 @@ public class HarvestInfoTools {
 
         String harvestTool = block.getHarvestTool(blockState);
         String harvestName = null;
-	String destoryTool;
-        if (harvestTool.equals("Pickaxe")) {
-        destoryTool = "镐";
-        } else if (harvestTool.equals("Shovel")) {
-        destoryTool = "铲";
-        } else if (harvestTool.equals("Axe")) {
-        destoryTool = "斧";
-        } else {
-        destoryTool = harvestTool;
-        }
+
         if (harvestTool == null) {
             // The block doesn't have an explicitly-set harvest tool, so we're going to test our wooden tools against the block.
             float blockHardness = blockState.getBlockHardness(world, pos);
@@ -122,6 +112,17 @@ public class HarvestInfoTools {
             harvestTool = StringUtils.capitalize(harvestTool);
         }
 
+        String destoryTool;
+        if (harvestTool.equals("Pickaxe")) {
+        destoryTool = "镐";
+        } else if (harvestTool.equals("Shovel")) {
+        destoryTool = "铲";
+        } else if (harvestTool.equals("Axe")) {
+        destoryTool = "斧";
+        } else {
+        destoryTool = harvestTool;
+        }
+
         boolean v = ConfigSetup.harvestStyleVanilla;
         int offs = v ? 16 : 0;
         int dim = v ? 13 : 16;
@@ -138,7 +139,7 @@ public class HarvestInfoTools {
                         .text(WARNING + ((harvestTool != null) ? harvestTool : "无法破坏"));
             } else {
                 horizontal.icon(ICONS, 16, offs, dim, dim, iconStyle)
-                        .text(WARNING + destoryTool + "(挖掘等级 " + harvestName + ")");
+                        .text(WARNING + destoryTool + " (挖掘等级:" + harvestName + ")");
             }
         }
     }
