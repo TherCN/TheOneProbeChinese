@@ -45,45 +45,45 @@ public class GuiNote extends GuiScreen {
         drawTexturedModalRect(guiLeft, guiTop, 0, 0, WIDTH, HEIGHT);
         int x = guiLeft+5;
         int y = guiTop+8;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "Things you should know about" + TextFormatting.GOLD + " The One Probe"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "你应该了解有关于" + TextFormatting.GOLD + "The One Probe" + TextFormatting.WHITE + "的事情"); y += 10;
         y += 10;
 
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, BOLD + "This mod can show a tooltip on screen"); y += 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, BOLD + "when you look at a block or an entity"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, BOLD + "当你看一个方块或实体时"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, BOLD + "此MOD可以在屏幕上显示工具提示"); y += 10;
 
         y += 10;
         switch (ConfigSetup.needsProbe) {
             case PROBE_NEEDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "In this pack the probe is configured to be"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "required in order to see the tooltip"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y += 10;
                 y += 16;
                 y = setInConfig(x, y);
                 break;
             case PROBE_NOTNEEDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "In this pack the probe is configured to be not"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "required in order to see the tooltip"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，探针配置不为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y += 10;
                 y += 16;
                 y = setInConfig(x, y);
                 break;
             case PROBE_NEEDEDFOREXTENDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "In this pack the probe is configured to be"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "required to see extended information (when"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "sneaking) but not for basic information"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，探针配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看扩展信息（当观看"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "时）但不是基本信息"); y += 10;
                 y += 6;
                 y = setInConfig(x, y);
                 break;
             case PROBE_NEEDEDHARD:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "In this pack the probe is configured to be"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "required in order to see the tooltip"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "This is set server side"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，探针配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y required in order to see the tooltip+= 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "用于设置服务器"); y += 10;
                 break;
         }
 
         y += 10;
 
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "Check out the 'Mod Options... for many client'"); y += 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "side configuration settings or sneak-right click"); y += 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "this note for more user-friendly setup"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在客户端检查Mod Option..."); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "侧面配置设置或窃取右键单击"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "本说明为更用户友好的设置"); y += 10;
     }
 
     private int hitX;
@@ -106,19 +106,19 @@ public class GuiNote extends GuiScreen {
     }
 
     private int setInConfig(int x, int y) {
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, BOLD + "" + GREEN + "You can change this here:");
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, BOLD + "" + GREEN + "你可以点这里修改:");
         y += 10;
 
         hitY = y + guiTop;
         hitX = x + guiLeft;
         drawRect(x, y, x + BUTTON_WIDTH, y + BUTTON_HEIGHT, 0xff000000);
-        RenderHelper.renderText(Minecraft.getMinecraft(), x + 3, y + 4, "不显示"); x += BUTTON_MARGIN;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x + 3, y + 4, "需要"); x += BUTTON_MARGIN;
 
         drawRect(x, y, x + BUTTON_WIDTH, y + BUTTON_HEIGHT, 0xff000000);
-        RenderHelper.renderText(Minecraft.getMinecraft(), x + 3, y + 4, "显示"); x += BUTTON_MARGIN;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x + 3, y + 4, "不需要"); x += BUTTON_MARGIN;
 
         drawRect(x, y, x + BUTTON_WIDTH, y + BUTTON_HEIGHT, 0xff000000);
-        RenderHelper.renderText(Minecraft.getMinecraft(), x + 3, y + 4, "拉伸"); x += BUTTON_MARGIN;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x + 3, y + 4, "扩展"); x += BUTTON_MARGIN;
 
         y += BUTTON_HEIGHT - 4;
         return y;
