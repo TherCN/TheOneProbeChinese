@@ -91,7 +91,7 @@ public class CommandTopCfg implements ICommand {
         String cmd = args[0];
         Consumer<String[]> consumer = SUBCOMMANDS.get(cmd);
         if (consumer == null) {
-            ((EntityPlayer)sender).sendStatusMessage(new TextComponentString(TextFormatting.RED + "未知风格选项！"), false);
+            ((EntityPlayer)sender).sendStatusMessage(new TextComponentString(TextFormatting.RED + "未知显示样式！"), false);
         } else {
             consumer.accept(args);
         }

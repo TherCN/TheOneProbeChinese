@@ -82,7 +82,7 @@ public class GuiConfig extends GuiScreen {
 
         int x = WIDTH + guiLeft + 10;
         int y = guiTop + 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, TextFormatting.GOLD + "放置:");
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, TextFormatting.GOLD + "请设置位置:");
         y += 12;
         RenderHelper.renderText(Minecraft.getMinecraft(), x+10, y, "在图片上点击任意地方");
         y += 10;
@@ -92,7 +92,7 @@ public class GuiConfig extends GuiScreen {
         y += 20;
 
         hitboxes = new ArrayList<>();
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, TextFormatting.GOLD + "预设:");
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, TextFormatting.GOLD + "请选择样式:");
         y += 12;
         for (Preset preset : presets) {
             y = addPreset(x, y, preset);

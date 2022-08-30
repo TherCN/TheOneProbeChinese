@@ -83,7 +83,7 @@ public class GuiNote extends GuiScreen {
 
         RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在暂停菜单点击Mod Option..."); y += 10;
         RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "选择The One Probe后点击左下角的config，可以修改更多选项"); y += 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "本说只能进行简单的设置，按Esc退出"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "本说明只能进行简单的设置，按Esc退出"); y += 10;
     }
 
     private int hitX;
