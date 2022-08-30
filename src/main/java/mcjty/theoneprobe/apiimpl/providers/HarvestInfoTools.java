@@ -78,7 +78,16 @@ public class HarvestInfoTools {
 
         String harvestTool = block.getHarvestTool(blockState);
         String harvestName = null;
-
+	String destoryTool;
+        if (harvestTool.equals("Pickaxe")) {
+        destoryTool = "镐";
+        } else if (harvestTool.equals("Shovel")) {
+        destoryTool = "铲";
+        } else if (harvestTool.equals("Axe")) {
+        destoryTool = "斧";
+        } else {
+        destoryTool = harvestTool;
+        }
         if (harvestTool == null) {
             // The block doesn't have an explicitly-set harvest tool, so we're going to test our wooden tools against the block.
             float blockHardness = blockState.getBlockHardness(world, pos);
@@ -120,16 +129,6 @@ public class HarvestInfoTools {
         ILayoutStyle alignment = probeInfo.defaultLayoutStyle().alignment(ElementAlignment.ALIGN_CENTER);
         IIconStyle iconStyle = probeInfo.defaultIconStyle().width(v ? 18 : 20).height(v ? 14 : 16).textureWidth(32).textureHeight(32);
         IProbeInfo horizontal = probeInfo.horizontal(alignment);
-        String destoryTool;
-        if (harvestTool.equals("Pickaxe")) {
-        destoryTool = "镐";
-        } else if (harvestTool.equals("Shovel")) {
-        destoryTool = "铲";
-        } else if (harvestTool.equals("Axe")) {
-        destoryTool = "斧";
-        } else {
-        destoryTool = harvestTool;
-        }
         if (harvestable) {
             horizontal.icon(ICONS, 0, offs, dim, dim, iconStyle)
                     .text(OK + destoryTool);
