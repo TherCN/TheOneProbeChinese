@@ -119,7 +119,7 @@ public class HarvestInfoTools {
         destoryTool = "铲";
         } else if (harvestTool.equals("Axe")) {
         destoryTool = "斧";
-        } else {
+        } else if (harvestTool.equals(null)) {
         destoryTool = harvestTool;
         }
 
