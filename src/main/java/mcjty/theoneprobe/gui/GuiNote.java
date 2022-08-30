@@ -74,7 +74,7 @@ public class GuiNote extends GuiScreen {
                 break;
             case PROBE_NEEDEDHARD:
                 RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，探针配置为"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y required in order to see the tooltip+= 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y += 10;
                 RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "用于设置服务器"); y += 10;
                 break;
         }
