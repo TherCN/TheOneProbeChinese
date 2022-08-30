@@ -113,14 +113,13 @@ public class HarvestInfoTools {
         }
 //判断工具
         String destoryTool = null;
-        if (harvestTool.equals("Pickaxe")) {
+	if (harvestTool == null) {
+        } else if (harvestTool.equals("Pickaxe")) {
         destoryTool = "镐";
         } else if (harvestTool.equals("Shovel")) {
         destoryTool = "铲";
         } else if (harvestTool.equals("Axe")) {
         destoryTool = "斧";
-        } else if (harvestTool.equals(null)) {
-        destoryTool = harvestTool;
         }
 
         boolean v = ConfigSetup.harvestStyleVanilla;
