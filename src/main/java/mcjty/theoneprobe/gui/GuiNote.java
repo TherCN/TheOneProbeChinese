@@ -54,14 +54,14 @@ public class GuiNote extends GuiScreen {
         y += 10;
         switch (ConfigSetup.needsProbe) {
             case PROBE_NEEDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，TOP配置为"); y += 10;
                 RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具显示"); y += 10;
                 y += 16;
                 y = setInConfig(x, y);
                 break;
             case PROBE_NOTNEEDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，TOP配置不为"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具显示"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，TOP配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "不需要查看工具显示"); y += 10;
                 y += 16;
                 y = setInConfig(x, y);
                 break;
@@ -81,9 +81,9 @@ public class GuiNote extends GuiScreen {
 
         y += 10;
 
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在客户端检查Mod Option..."); y += 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "侧面配置设置或窃取右键单击"); y += 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "本说明为更用户友好的设置"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在暂停菜单点击Mod Option..."); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "选择The One Probe后点击左下角的config，可以修改更多选项"); y += 10;
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "本说只能进行简单的设置，按Esc退出"); y += 10;
     }
 
     private int hitX;

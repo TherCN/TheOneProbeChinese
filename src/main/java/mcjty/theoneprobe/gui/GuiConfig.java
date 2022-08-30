@@ -84,9 +84,9 @@ public class GuiConfig extends GuiScreen {
         int y = guiTop + 10;
         RenderHelper.renderText(Minecraft.getMinecraft(), x, y, TextFormatting.GOLD + "放置:");
         y += 12;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x+10, y, "点击任意角落截图");
+        RenderHelper.renderText(Minecraft.getMinecraft(), x+10, y, "在图片上点击任意地方");
         y += 10;
-        RenderHelper.renderText(Minecraft.getMinecraft(), x+10, y, "移动提示到这里");
+        RenderHelper.renderText(Minecraft.getMinecraft(), x+10, y, "它就会移动到那里");
         y += 10;
 
         y += 20;
@@ -100,7 +100,7 @@ public class GuiConfig extends GuiScreen {
 
         y += 20;
 
-        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, TextFormatting.GOLD + "级别:");
+        RenderHelper.renderText(Minecraft.getMinecraft(), x, y, TextFormatting.GOLD + "大小:");
         y += 12;
         addButton(x+10, y, 30, 14, "--", () -> { ConfigSetup.setScale(1.2f);}); x += 36;
         addButton(x+10, y, 30, 14, "-", () -> { ConfigSetup.setScale(1.1f);}); x += 36;
