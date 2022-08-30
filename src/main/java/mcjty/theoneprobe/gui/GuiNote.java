@@ -54,27 +54,27 @@ public class GuiNote extends GuiScreen {
         y += 10;
         switch (ConfigSetup.needsProbe) {
             case PROBE_NEEDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，配置为"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具显示"); y += 10;
                 y += 16;
                 y = setInConfig(x, y);
                 break;
             case PROBE_NOTNEEDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，探针配置不为"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，TOP配置不为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具显示"); y += 10;
                 y += 16;
                 y = setInConfig(x, y);
                 break;
             case PROBE_NEEDEDFOREXTENDED:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，探针配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，TOP配置为"); y += 10;
                 RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看扩展信息（当观看"); y += 10;
                 RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "时）但不是基本信息"); y += 10;
                 y += 6;
                 y = setInConfig(x, y);
                 break;
             case PROBE_NEEDEDHARD:
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在此包中，探针配置为"); y += 10;
-                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具提示"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "在这个游戏中，TOP配置为"); y += 10;
+                RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "需要查看工具显示"); y += 10;
                 RenderHelper.renderText(Minecraft.getMinecraft(), x, y, "用于设置服务器"); y += 10;
                 break;
         }
