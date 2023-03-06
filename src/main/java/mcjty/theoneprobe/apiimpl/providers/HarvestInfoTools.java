@@ -114,7 +114,7 @@ public class HarvestInfoTools {
 //判断工具
         String destoryTool = null;
 	if (harvestTool == null) {
-	destoryTool = "空"
+	destoryTool = "空";
         } else if (harvestTool.equals("Pickaxe")) {
         destoryTool = "镐";
         } else if (harvestTool.equals("Shovel")) {
