@@ -66,7 +66,7 @@ public class HarvestInfoTools {
 
         boolean harvestable = block.canHarvestBlock(world, pos, player) && world.getBlockState(pos).getBlockHardness(world, pos) >= 0;
         if (harvestable) {
-            probeInfo.text(OK + "可收货");
+            probeInfo.text(OK + "可收获");
         } else {
             probeInfo.text(WARNING + "不可收获");
         }
@@ -114,6 +114,7 @@ public class HarvestInfoTools {
 //判断工具
         String destoryTool = null;
 	if (harvestTool == null) {
+	destoryTool = "空"
         } else if (harvestTool.equals("Pickaxe")) {
         destoryTool = "镐";
         } else if (harvestTool.equals("Shovel")) {
